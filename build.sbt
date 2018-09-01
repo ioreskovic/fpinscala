@@ -1,5 +1,8 @@
+lazy val scalacheck = "org.scalacheck" %% "scalacheck" % "1.14.0"
+
 val commonSettings = Seq(
-  scalaVersion := "2.12.6"
+  scalaVersion := "2.12.6",
+  libraryDependencies += scalacheck % Test
 )
 
 lazy val root = (project in file("."))
