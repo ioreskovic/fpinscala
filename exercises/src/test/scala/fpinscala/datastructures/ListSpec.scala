@@ -58,8 +58,10 @@ class ListSpec extends WordSpec with Matchers {
 		}
 
 		"dropping more than all elements" should {
-			"produce empty list" in {
-				assert(drop(List(1, 2, 3, 4), 10) == List())
+			"produce NoSuchElementException" in {
+				assertThrows[NoSuchElementException] {
+					drop(List(1, 2, 3, 4), 10)
+				}
 			}
 		}
 	}

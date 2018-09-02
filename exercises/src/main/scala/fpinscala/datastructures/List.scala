@@ -51,10 +51,7 @@ object List { // `List` companion object. Contains functions for creating and wo
   def product2(ns: List[Double]) =
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
-  def tail[A](l: List[A]): List[A] = l match {
-    case Nil         => throw new NoSuchElementException
-    case Cons(x, xs) => xs
-  }
+  def tail[A](l: List[A]): List[A] = drop(l, 1)
 
   def setHead[A](l: List[A], h: A): List[A] = l match {
     case Nil         => throw new NoSuchElementException
@@ -66,7 +63,7 @@ object List { // `List` companion object. Contains functions for creating and wo
     if (n <= 0) l
     else
       l match {
-        case Nil         => Nil
+        case Nil         => throw new NoSuchElementException
         case Cons(_, ls) => drop(ls, n - 1)
       }
   }
