@@ -1,8 +1,11 @@
-lazy val scalacheck = "org.scalacheck" %% "scalacheck" % "1.14.0"
+import Dependencies._
 
 val commonSettings = Seq(
   scalaVersion := "2.12.6",
-  libraryDependencies += scalacheck % Test
+  libraryDependencies ++= Seq(
+    Dependencies.scalatest % Test,
+    Dependencies.scalacheck % Test
+  )
 )
 
 lazy val root = (project in file("."))
