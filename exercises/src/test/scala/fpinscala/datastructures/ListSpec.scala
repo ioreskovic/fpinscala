@@ -1,8 +1,8 @@
-import org.scalatest.WordSpec
+import org.scalatest._
 import fpinscala.datastructures.List
 import fpinscala.datastructures.List._
 
-class ListSpec extends WordSpec {
+class ListSpec extends WordSpec with Matchers {
 
 	"A List" when {
 		"invoking tail" should {
@@ -34,6 +34,32 @@ class ListSpec extends WordSpec {
 
 			"produce tail of original list with prepended element" in {
 				assert(setHead(List(0, 2, 3, 4), 1) == List(1, 2, 3, 4))
+			}
+		}
+
+		"dropping zero elements" should {
+			"produce same list" in {
+				val list = List(1, 2, 3, 4)
+
+				drop(list, 0) should be theSameInstanceAs list
+			}
+		}
+
+		"dropping all elements" should {
+			"produce empty list" in {
+				assert(drop(List(1, 2, 3, 4), 4) == List())
+			}
+		}
+
+		"dropping less than all elements" should {
+			"produce non empty list" in {
+				assert(drop(List(1, 2, 3, 4), 2) == List(3, 4))
+			}
+		}
+
+		"dropping more than all elements" should {
+			"produce empty list" in {
+				assert(drop(List(1, 2, 3, 4), 10) == List())
 			}
 		}
 	}
