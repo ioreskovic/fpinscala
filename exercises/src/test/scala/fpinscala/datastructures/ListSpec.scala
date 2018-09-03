@@ -157,5 +157,49 @@ class ListSpec extends WordSpec with Matchers {
 			}
 		}
 	}
+
+	"An Int list" when {
+		"computing sum" when {
+			"it is empty" should {
+				"produce default value (zero)" in {
+					assert(sum(List()) == 0)
+				}
+			}
+
+			"it is singleton list" should {
+				"produce value of element" in {
+					assert(sum(List(33)) == 33)
+				}
+			}
+
+			"it has more elements" should {
+				"produce sum value of all elements" in {
+					assert(sum(List(-1, 2, -3, 4, -5, 6, 0)) == 3)
+				}
+			}
+		}
+	}
+
+	"An Double list" when {
+		"computing product" when {
+			"it is empty" should {
+				"produce default value (one)" in {
+					assert(product(List()) == 1.0)
+				}
+			}
+
+			"it is singleton list" should {
+				"produce value of element" in {
+					assert(product(List(-1.0)) == -1.0)
+				}
+			}
+
+			"it has more elements" should {
+				"produce product value of all elements" in {
+					assert(product(List(-1, 2, -3, 4, -5, 6, 0)) == 0)
+				}
+			}
+		}
+	}
 	
 }
