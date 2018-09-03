@@ -136,6 +136,26 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"computing length" when {
+			"it is empty" should {
+				"produce zero" in {
+					assert(List.length(List()) == 0)
+				}
+			}
+
+			"it is singleton list" should {
+				"produce one" in {
+					assert(List.length(List(33)) == 1)
+				}
+			}
+
+			"it has more elements" should {
+				"produce element count" in {
+					assert(List.length(List(1, 4, 7)) == 3)
+				}
+			}
+		}
 	}
 	
 }
