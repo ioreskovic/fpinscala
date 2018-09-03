@@ -158,6 +158,34 @@ class ListSpec extends WordSpec with Matchers {
 		}
 	}
 
+	"An empty list" when {
+		"appended by empty list" should {
+			"produce empty list" in {
+				assert(append(List(), List()) == List())
+			}
+		}
+
+		"appended by non-empty list" should {
+			"produce that non empty list" in {
+				assert(append(List(), List(1, 2, 3)) == List(1, 2, 3))
+			}
+		}
+	}
+
+	"A non empty list" when {
+		"appended by empty list" should {
+			"produce original list" in {
+				assert(append(List(1, 2, 3), List()) == List(1, 2, 3))
+			}
+		}
+
+		"appended by non-empty list" should {
+			"produce list containing all elements in order a1:a2" in {
+				assert(append(List(1, 2, 3), List(4, 5, 6)) == List(1, 2, 3, 4, 5, 6))
+			}
+		}
+	}
+
 	"An Int list" when {
 		"computing sum" when {
 			"it is empty" should {
