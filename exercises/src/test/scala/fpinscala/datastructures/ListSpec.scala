@@ -64,6 +64,32 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"dropping elements while predicate holds" when {
+			"list is empty" should {
+				"produce empty list" in {
+					assert(dropWhile(List(), (_: Any) => true) == List())
+				}
+			}
+
+			"list has one element" should {
+				"produce empty list" in {
+					assert(dropWhile(List(1), (_: Int) => true) == List())
+				}
+			}
+
+			"list has more elements" should {
+				"produce list without matching prefix list" in {
+					assert(dropWhile(List(-1, -2, 2, 1, -5), (i: Int) => i < 0) == List(2, 1, -5))
+				}
+			}
+		}
+
+		"dropping elements when predicate does not hold" when {
+			"should produce equal list" in {
+				assert(dropWhile(List(1, 2, 3), (i: Int) => i < 0) == List(1, 2, 3))
+			}
+		}
 	}
 	
 }
