@@ -77,4 +77,7 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def reverse[A](l: List[A]): List[A] =
     foldLeft(l, Nil: List[A])((acc, x) => Cons(x, acc))
+
+  def flatten[A](lists: List[List[A]]): List[A] =
+    foldRight(lists, Nil: List[A])((list, acc) => append(list, acc))
 }

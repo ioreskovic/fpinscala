@@ -229,5 +229,32 @@ class ListSpec extends WordSpec with Matchers {
 			}
 		}
 	}
+
+	"A List of lists" when {
+		"computing flattened list" when {
+			"it is empty" should {
+				"produce empty list" in {
+					assert(flatten(List()) == List())
+				}
+			}
+
+			"it is singleton list" should {
+				"produce that list" in {
+					assert(flatten(List(List(1, 2, 3))) == List(1, 2, 3))
+				}
+			}
+
+			"it consists of many lists" should {
+				"produce list with elements in prodvided order" in {
+					assert(flatten(List(
+						List(), 
+						List(1), 
+						List(2, 2), 
+						List(3, 3, 3)
+					)) == List(1, 2, 2, 3, 3, 3))
+				}
+			} 
+		}
+	}
 	
 }
