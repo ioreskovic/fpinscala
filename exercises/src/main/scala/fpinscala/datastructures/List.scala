@@ -81,14 +81,6 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def map[A, B](l: List[A])(f: A => B): List[B] = ???
 
-  def reverse[A](l: List[A]): List[A] = {
-
-    @annotation.tailrec
-    def loop(list: List[A], acc: List[A]): List[A] = list match {
-      case Cons(x, xs) => loop(xs, Cons(x, acc))
-      case Nil         => acc
-    }
-
-    loop(l, Nil)
-  }
+  def reverse[A](l: List[A]): List[A] =
+    foldLeft(l, Nil: List[A])((acc, x) => Cons(x, acc))
 }
