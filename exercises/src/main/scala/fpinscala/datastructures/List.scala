@@ -75,11 +75,25 @@ object List { // `List` companion object. Contains functions for creating and wo
     case _                   => l
   }
 
-  def init[A](l: List[A]): List[A] = ???
+  def init[A](l: List[A]): List[A] = reverse(l) match {
+    case Cons(_, xs) => reverse(xs)
+    case Nil         => Nil
+  }
 
   def length[A](l: List[A]): Int = ???
 
   def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = ???
 
   def map[A, B](l: List[A])(f: A => B): List[B] = ???
+
+  def reverse[A](l: List[A]): List[A] = {
+
+    @annotation.tailrec
+    def loop(list: List[A], acc: List[A]): List[A] = list match {
+      case Cons(x, xs) => loop(xs, Cons(x, acc))
+      case Nil         => acc
+    }
+
+    loop(l, Nil)
+  }
 }

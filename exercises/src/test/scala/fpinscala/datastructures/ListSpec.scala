@@ -90,6 +90,52 @@ class ListSpec extends WordSpec with Matchers {
 				assert(dropWhile(List(1, 2, 3), (i: Int) => i < 0) == List(1, 2, 3))
 			}
 		}
+
+		"reversing" when {
+			"empty" should {
+				"produce empty list" in {
+					assert(reverse(List()) == List())
+				}
+			}
+
+			"singleton" should {
+				"produce equal singleton list" in {
+					assert(reverse(List(3)) == List(3))
+				}
+			}
+
+			"has more elements" should {
+				"produce list with elements in reverse order" in {
+					assert(reverse(List(1, 2, 3)) == List(3, 2, 1))
+				}
+			}
+
+			"already reversed list" should {
+				"produce original list" in {
+					assert(reverse(reverse(List(1, 2, 3))) == List(1, 2, 3))
+				}
+			}
+		}
+
+		"calling init" when {
+			"it is empty" should {
+				"produce empty list" in {
+					assert(init(List()) == List())
+				}
+			}
+
+			"it is singleton" should {
+				"produce empty list" in {
+					assert(init(List(1)) == List())
+				}
+			}
+
+			"it has more elements" should {
+				"produce all but last" in {
+					assert(init(List(1, 2, 3)) == List(1, 2))
+				}
+			}
+		}
 	}
 	
 }
