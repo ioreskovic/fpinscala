@@ -310,5 +310,27 @@ class ListSpec extends WordSpec with Matchers {
 			} 
 		}
 	}
+
+	"A pair of lists" when {
+		"zipping them together" when {
+			"both are empty" should {
+				"produce empty list" in {
+					assert(zipWith(List(), List()) == List())
+				}
+			}
+
+			"both are non-empty and of same length" should {
+				"produce zipped list" in {
+					assert(zipWith(List(1, 2, 3), List(1, 2, 3)) == List(2, 4, 6))
+				}
+			}
+
+			"they are of different lengths" should {
+				"zip on aligning elements and ignore rest" in {
+					assert(zipWith(List(1, 2), List(1, 2, 3, 4)) == List(2, 4))
+				}
+			}
+		}
+	}
 	
 }

@@ -92,4 +92,17 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] =
     flatten(map(as)(f))
+
+  def zipWith(aList: List[Int], bList: List[Int]): List[Int] = {
+
+    @annotation.tailrec
+    def loop(ax: List[Int], bx: List[Int], cx: List[Int] = Nil): List[Int] =
+      (ax, bx) match {
+        case (Cons(a, as), Cons(b, bs)) => loop(as, bs, Cons(a + b, cx))
+        case _                          => cx
+      }
+
+    reverse(loop(aList, bList))
+  }
+
 }
