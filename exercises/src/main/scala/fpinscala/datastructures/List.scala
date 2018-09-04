@@ -80,4 +80,15 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def flatten[A](lists: List[List[A]]): List[A] =
     foldRight(lists, Nil: List[A])((list, acc) => append(list, acc))
+
+  def addOne(intList: List[Int]): List[Int] = {
+
+    @annotation.tailrec
+    def loop(list: List[Int], acc: List[Int] = Nil): List[Int] = list match {
+      case Nil         => acc
+      case Cons(x, xs) => loop(xs, Cons(x + 1, acc))
+    }
+
+    reverse(loop(intList))
+  }
 }

@@ -206,6 +206,20 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"adding one to each element" when {
+			"it is empty" should {
+				"produce empty list" in {
+					assert(addOne(List()) == List())
+				}
+			}
+
+			"it is not empty" should {
+				"produce non empty list in original order" in {
+					assert(addOne(List(1, 2, 3)) == List(2, 3, 4))
+				}
+			}
+		}
 	}
 
 	"An Double list" when {
