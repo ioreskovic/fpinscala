@@ -315,19 +315,22 @@ class ListSpec extends WordSpec with Matchers {
 		"zipping them together" when {
 			"both are empty" should {
 				"produce empty list" in {
-					assert(zipWith(List(), List()) == List())
+					assert(zipWith(List[Int](), List[Double]())
+						((i, d) => (i + d).toString) == List())
 				}
 			}
 
 			"both are non-empty and of same length" should {
 				"produce zipped list" in {
-					assert(zipWith(List(1, 2, 3), List(1, 2, 3)) == List(2, 4, 6))
+					assert(zipWith(List(1, 2, 3), List(1.0, 2.0, 3.0))
+						((i, d) => (i + d).toString) == List("2.0", "4.0", "6.0"))
 				}
 			}
 
 			"they are of different lengths" should {
 				"zip on aligning elements and ignore rest" in {
-					assert(zipWith(List(1, 2), List(1, 2, 3, 4)) == List(2, 4))
+					assert(zipWith(List(1, 2), List(1.0, 2.0, 3.0, 4.0))
+						((i, d) => (i + d).toString) == List("2.0", "4.0"))
 				}
 			}
 		}
