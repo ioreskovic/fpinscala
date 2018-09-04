@@ -156,6 +156,26 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"filtering elements" when {
+			"no elements match" should {
+				"produce original list" in {
+					assert(filter(List(2, 4, 6, 8))(_ % 2 == 0) == List(2, 4, 6, 8))
+				}
+			}
+
+			"all elements match" should {
+				"produce empty list" in {
+					assert(filter(List(1, 3, 5, 7))(_ % 2 == 0) == List())
+				}
+			}
+
+			"some elements match" should {
+				"produce list containig elements that satisfy predicate" in {
+					assert(filter(List(1, 2, 3, 4))(_ % 2 == 0) == List(2, 4))
+				}
+			}
+		}
 	}
 
 	"An empty list" when {

@@ -86,4 +86,7 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def doubleString(doubleList: List[Double]): List[String] =
     map(doubleList)(_.toString)
+
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
+    foldRight(as, List[A]())((a, acc) => if (f(a)) Cons(a, acc) else acc)
 }
