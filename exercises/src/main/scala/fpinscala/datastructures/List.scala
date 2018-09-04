@@ -73,7 +73,8 @@ object List { // `List` companion object. Contains functions for creating and wo
     case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
   }
 
-  def map[A, B](l: List[A])(f: A => B): List[B] = ???
+  def map[A, B](l: List[A])(f: A => B): List[B] =
+    foldRight(l, List[B]())((x, acc) => Cons(f(x), acc))
 
   def reverse[A](l: List[A]): List[A] =
     foldLeft(l, Nil: List[A])((acc, x) => Cons(x, acc))
@@ -81,26 +82,8 @@ object List { // `List` companion object. Contains functions for creating and wo
   def flatten[A](lists: List[List[A]]): List[A] =
     foldRight(lists, Nil: List[A])((list, acc) => append(list, acc))
 
-  def addOne(intList: List[Int]): List[Int] = {
+  def addOne(intList: List[Int]): List[Int] = map(intList)(_ + 1)
 
-    @annotation.tailrec
-    def loop(list: List[Int], acc: List[Int] = Nil): List[Int] = list match {
-      case Nil         => acc
-      case Cons(x, xs) => loop(xs, Cons(x + 1, acc))
-    }
-
-    reverse(loop(intList))
-  }
-
-  def doubleString(doubleList: List[Double]): List[String] = {
-
-    @annotation.tailrec
-    def loop(list: List[Double], acc: List[String] = Nil): List[String] =
-      list match {
-        case Nil         => acc
-        case Cons(x, xs) => loop(xs, Cons(x.toString, acc))
-      }
-
-    reverse(loop(doubleList))
-  }
+  def doubleString(doubleList: List[Double]): List[String] =
+    map(doubleList)(_.toString)
 }
