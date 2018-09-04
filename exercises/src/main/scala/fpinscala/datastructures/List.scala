@@ -106,18 +106,17 @@ object List { // `List` companion object. Contains functions for creating and wo
     reverse(loop(aList, bList))
   }
 
-  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+  @annotation.tailrec
+  def startsWith[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+    case (Cons(a, as), Cons(b, bs)) if (a == b) => startsWith(as, bs)
+    case (_, Nil)                               => true
+    case _                                      => false
+  }
 
-    def loop(superList: List[A], subList: List[A]): Boolean =
-      (superList, subList) match {
-        case (Cons(a, as), Cons(b, bs)) if (a == b) =>
-          loop(as, bs) || loop(as, sub)
-        case (Cons(a, as), Cons(b, bs)) => loop(as, sub)
-        case (_, Nil)                   => true
-        case _                          => false
-      }
-
-    loop(sup, sub)
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sup match {
+    case Nil                       => sub == Nil
+    case _ if startsWith(sup, sub) => true
+    case Cons(_, ss)               => hasSubsequence(ss, sub)
   }
 
 }

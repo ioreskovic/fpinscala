@@ -366,6 +366,32 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"checking if first starts with second" when {
+			"both are empty" should {
+				"yield true" in {
+					assert(startsWith(List(), List()) == true)
+				}
+			}
+
+			"first is non-empty and second is empty" should {
+				"yield true" in {
+					assert(startsWith(List(1, 2, 3), List()) == true)
+				}
+			}
+
+			"both are non-empty and first starts with second" should {
+				"yield true" in {
+					assert(startsWith(List(1, 2, 3, 4), List(1, 2)) == true)
+				}
+			}
+
+			"both are non-empty and first doesn't start with second" should {
+				"yield true" in {
+					assert(startsWith(List(1, 2, 3, 4), List(1, 3)) == false)
+				}
+			}
+		}
 	}
 	
 }
