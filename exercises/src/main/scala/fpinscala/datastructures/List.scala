@@ -91,4 +91,16 @@ object List { // `List` companion object. Contains functions for creating and wo
 
     reverse(loop(intList))
   }
+
+  def doubleString(doubleList: List[Double]): List[String] = {
+
+    @annotation.tailrec
+    def loop(list: List[Double], acc: List[String] = Nil): List[String] =
+      list match {
+        case Nil         => acc
+        case Cons(x, xs) => loop(xs, Cons(x.toString, acc))
+      }
+
+    reverse(loop(doubleList))
+  }
 }

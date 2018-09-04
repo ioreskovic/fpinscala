@@ -242,6 +242,20 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"stringifying elements" when {
+			"it is empty" should {
+				"produce empty list" in {
+					assert(doubleString(List()) == List())
+				}
+			}
+
+			"it is not empty" should {
+				"produce list with string elements" in {
+					assert(doubleString(List(1.0, 2.0, 3.0)) == List("1.0", "2.0", "3.0"))
+				}
+			}
+		}
 	}
 
 	"A List of lists" when {
