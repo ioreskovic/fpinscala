@@ -176,6 +176,12 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"flatmapping elements" should {
+			"apply function and flatten result" in {
+				assert(flatMap(List(0, 1))(x => List(x * 2, x * 2 + 1)) == List(0, 1, 2, 3))
+			}
+		}
 	}
 
 	"An empty list" when {
