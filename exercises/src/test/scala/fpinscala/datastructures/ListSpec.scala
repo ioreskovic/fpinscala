@@ -334,6 +334,38 @@ class ListSpec extends WordSpec with Matchers {
 				}
 			}
 		}
+
+		"looking up subsequence" when {
+			"both are empty" should {
+				"yield true" in {
+					assert(hasSubsequence(List(), List()) == true)
+				}
+			}
+
+			"super is non-empty and sub is empty" should {
+				"yield true" in {
+					assert(hasSubsequence(List(1, 2, 3), List()) == true)
+				}
+			}
+
+			"super is empty and sub is non-empty" should {
+				"yield false" in {
+					assert(hasSubsequence(List(), List(1, 2, 3)) == false)
+				}
+			}
+
+			"both are non-empty and sup contains sub" should {
+				"yield true" in {
+					assert(hasSubsequence(List(1, 2, 3, 4), List(2, 3)) == true)
+				}
+			}
+
+			"both are non-empty and sup does not contain sub" should {
+				"yield false" in {
+					assert(hasSubsequence(List(1, 2, 3, 4), List(2, 4)) == false)
+				}
+			}
+		}
 	}
 	
 }
