@@ -32,5 +32,38 @@ class TreeSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks
 				}
 			}
 		}
+
+		"tree has multiple elements" should {
+			"yield max element value" in {
+				Tree.maximum(Branch(
+					Branch(Leaf(1), Leaf(3)),
+					Branch(Leaf(5), Leaf(7))
+				)) should be (7)
+			}
+		}
+	}
+
+	"Calculating depth" when {
+		"tree has only root" should {
+			"yield zero" in {
+				forAll ("root value") { (x: Int) =>
+					Tree.depth(Leaf(x)) should be (0)
+				}
+			}
+		}
+
+		"tree has multiple levels" should {
+			"yield max depth" in {
+				Tree.depth(Branch(
+					Leaf(1), Branch(
+						Leaf(2), Branch(
+							Leaf(3), Branch(
+								Leaf(4), Leaf(4)
+							)
+						)
+					)
+				)) should be (4)
+			}
+		}
 	}
 }
