@@ -23,4 +23,14 @@ class TreeSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks
 			}
 		}
 	}
+
+	"Calculating maximum element in Int Tree" when {
+		"tree has only one node" should {
+			"yield that node's value" in {
+				forAll ("root value") { (x: Int) =>
+					Tree.maximum(Leaf(x)) should be (x)
+				}
+			}
+		}
+	}
 }
