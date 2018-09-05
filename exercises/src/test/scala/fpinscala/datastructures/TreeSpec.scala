@@ -66,4 +66,30 @@ class TreeSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks
 			}
 		}
 	}
+
+	"Mapping over tree" should {
+		"apply mapping function to all elements" in {
+			Tree.map(
+				Branch(
+					Leaf(1), Branch(
+						Leaf(2), Branch(
+							Leaf(3), Branch(
+								Leaf(4), Leaf(4)
+							)
+						)
+					)
+				)
+			)(_.toString) should be (
+				Branch(
+					Leaf("1"), Branch(
+						Leaf("2"), Branch(
+							Leaf("3"), Branch(
+								Leaf("4"), Leaf("4")
+							)
+						)
+					)
+				)
+			)
+		}
+	}
 }
