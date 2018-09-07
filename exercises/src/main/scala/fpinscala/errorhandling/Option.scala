@@ -52,11 +52,14 @@ object Option {
     mean(xs).flatMap(m => mean(xs.map(x => math.pow(x - m, 2))))
 
   def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
-    a.flatMap(sa => b.map(sb => f(sa, sb)))
+    for {
+      aa <- a
+      bb <- b
+    } yield f(aa, bb)
 
-  def sequence[A](a: List[Option[A]]): Option[List[A]] = {
-    a.foldRight[Option[List[A]]](Some(Nil))((ma, ml) => map2(ma, ml)(_ :: _))
-  }
+  def sequence[A](a: List[Option[A]]): Option[List[A]] =
+    traverse(a)(identity)
 
-  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = ???
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] =
+    a.foldRight[Option[List[B]]](Some(Nil))((aa, ml) => map2(f(aa), ml)(_ :: _))
 }
