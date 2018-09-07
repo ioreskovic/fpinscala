@@ -56,4 +56,23 @@ class OptionSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Flatmapping over Option" when {
+		"it has some value" should {
+			"yield option from arg function" in {
+				val f: (Int => Option[Double]) = i => Some(i + 1)
+				val x = 1
+
+				Some(x).flatMap(f) should be (f(x))
+			}
+		}
+
+		"it has no value" should {
+			"yield none" in {
+				val f: (Int => Option[Double]) = i => Some(i + 1)
+				
+				None.flatMap(f) should be (None)
+			}
+		}
+	}
 }
