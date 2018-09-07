@@ -91,4 +91,28 @@ class OptionSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Filtering over Option" when {
+		"it has some value" when {
+			"it matches predicate" should {
+				"yield that some value" in {
+					val x = 5
+					Some(x).filter(_ => true) should be (Some(x))
+				}
+			}
+
+			"it doesn't match predicate" should {
+				"yield none" in {
+					val x = 5
+					Some(x).filter(_ => false) should be (None)
+				}
+			}
+		}
+
+		"it has no value" should {
+			"yield none" in {
+				None.filter(_ => true) should be (None)
+			}
+		}
+	}
 }
