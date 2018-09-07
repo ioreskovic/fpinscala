@@ -75,4 +75,20 @@ class OptionSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Falling back over Option" when {
+		"it has some value" should {
+			"yield original Some" in {
+				val x = 1
+				Some(x).orElse(Some(x + 1)) should be (Some(x))
+			}
+		}
+
+		"it has no value" should {
+			"yield fallback option" in {
+				val x = 1
+				None.orElse(Some(x)) should be (Some(x))
+			}
+		}
+	}
 }

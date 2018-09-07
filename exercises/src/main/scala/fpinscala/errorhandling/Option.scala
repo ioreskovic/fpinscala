@@ -20,7 +20,7 @@ sealed trait Option[+A] {
 
   def flatMap[B](f: A => Option[B]): Option[B] = map(f).getOrElse(None)
 
-  def orElse[B >: A](ob: => Option[B]): Option[B] = ???
+  def orElse[B >: A](ob: => Option[B]): Option[B] = map(Some(_)).getOrElse(ob)
 
   def filter(f: A => Boolean): Option[A] = ???
 }
