@@ -129,4 +129,28 @@ class OptionSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		} 
 	}
+
+	"Combining 2 options" when {
+		"both contain no value" should {
+			"yield none" in {
+				Option.map2(None: Option[Int], None: Option[Int])(_ + _) should be (None)
+			}
+		}
+
+		"only first contains no value" should {
+			"yield none" in {
+				Option.map2(None: Option[Int], Some(1))(_ + _) should be (None)
+			}
+		}
+
+		"both contain a value" should {
+			"yield some result of function" in {
+				val f: (Int, Int) => Int = _ + _
+				val a = 1
+				val b = 2
+
+				Option.map2(Some(a), Some(b))(f) should be (Some(f(a, b)))
+			}
+		}
+	}
 }
