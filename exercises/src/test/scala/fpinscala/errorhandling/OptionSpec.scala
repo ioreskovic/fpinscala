@@ -115,4 +115,18 @@ class OptionSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Calculating variance" when {
+		"Sequence is empty" should {
+			"yield None" in {
+				Option.variance(Seq.empty) should be (None)
+			}
+		}
+
+		"Sequence is not empty" should {
+			"yield Some result" in {
+				Option.variance(Seq(1, 2, 3, 4, 5)) should be (Some(2.0))
+			}
+		} 
+	}
 }
