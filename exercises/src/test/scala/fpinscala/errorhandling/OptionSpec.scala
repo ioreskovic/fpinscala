@@ -153,4 +153,32 @@ class OptionSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Sequencing list of options" when {
+		"it is empty" should {
+			"yield some empty list" in {
+				Option.sequence[Any](Nil) should be (Some(Nil))
+			}
+		}
+
+		"it has only nones" should {
+			"yield none" in {
+				Option.sequence[Any](List(None, None, None)) should be (None)
+			}
+		}
+
+		"it has only somes" should {
+			"yield some list" in {
+				val original = List(1, 2, 3)
+
+				Option.sequence(original.map(Some(_))) should be (Some(original))
+			}
+		}
+
+		"it has none element" should {
+			"yield none" in {
+				Option.sequence(List(Some(1), Some(2), None, Some(3), Some(4))) should be (None)
+			}
+		}
+	}
 }
