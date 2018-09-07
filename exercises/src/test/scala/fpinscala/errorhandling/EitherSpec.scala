@@ -126,4 +126,35 @@ class EitherSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Sequencing over Eithers" when {
+		"it is empty" should {
+			"yield Right empty List" in {
+				val es: List[Either[String, Int]] = Nil
+				Either.sequence(es) should be (Right(Nil))
+			}
+		}
+
+		"it has only Rights" should {
+			"yield Right List" in {
+				val originals = List(1, 2, 3)
+				val es: List[Either[String, Int]] = originals.map(Right(_))
+
+				Either.sequence(es) should be (Right(originals))
+			}
+		}
+
+		"it has Lefts and Rights" should {
+			"yield Left with 1st error" in {
+				val es: List[Either[String, Int]] = List(
+					Right(1),
+					Left("2"),
+					Right(3),
+					Left("4")
+				)
+
+				Either.sequence(es) should be (Left("2"))
+			}
+		}
+	}
 }
