@@ -222,4 +222,30 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			))
 		}
 	}
+
+	"Checking if a stream starts with another stream" when {
+		"both are empty" should {
+			"yield true" in {
+				Stream.empty[Int].startsWith(Stream.empty[Int]) should be (true)
+			}
+		}
+
+		"only first is empty" should {
+			"yield false" in {
+				Stream.empty[Int].startsWith(Stream(1, 2, 3)) should be (false)
+			}
+		}
+
+		"both are non-empty and second is a prefix of first" should {
+			"yield true" in {
+				Stream(1, 2, 3).startsWith(Stream(1, 2, 3)) should be (true)
+			}
+		}
+
+		"both are non-empty but second is not a prefix of first" should {
+			"yield false" in {
+				Stream(1, 2, 3).startsWith(Stream(1, 2, 4)) should be (false)
+			}
+		}
+	}
 }

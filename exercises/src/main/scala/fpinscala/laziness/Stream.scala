@@ -77,7 +77,10 @@ trait Stream[+A] {
       case _                     => None
     }
 
-  def startsWith[B](s: Stream[B]): Boolean = ???
+  def startsWith[B](that: Stream[B]): Boolean =
+    zipAll(that).takeWhile(!_._2.isEmpty).forAll {
+      case (maybeA, maybeB) => maybeA == maybeB
+    }
 }
 case object Empty                                   extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
