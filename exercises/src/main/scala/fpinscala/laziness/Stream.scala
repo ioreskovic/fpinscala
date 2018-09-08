@@ -81,6 +81,12 @@ trait Stream[+A] {
     zipAll(that).takeWhile(!_._2.isEmpty).forAll {
       case (maybeA, maybeB) => maybeA == maybeB
     }
+
+  def tails: Stream[Stream[A]] =
+    unfold(this) {
+      case s @ Cons(h, t) => Some((s, t()))
+      case Empty          => None
+    }.append(Stream(empty))
 }
 case object Empty                                   extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]

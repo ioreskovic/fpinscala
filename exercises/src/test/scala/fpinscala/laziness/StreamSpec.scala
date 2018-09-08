@@ -248,4 +248,25 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Tails of a stream" when {
+		"it is empty" should {
+			"be an empty stream" in {
+				Stream.empty[Int].tails.map(_.toList).toList should be (List(
+					List()
+				))
+			}
+		}
+
+		"it has more elements" should {
+			"be a stream containing all suffixes" in {
+				Stream(1, 2, 3).tails.map(_.toList).toList shouldBe (List(
+					List(1, 2, 3),
+					List(2, 3),
+					List(3),
+					List()
+				))
+			}
+		}
+	}
 }
