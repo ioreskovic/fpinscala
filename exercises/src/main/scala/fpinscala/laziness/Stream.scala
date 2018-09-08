@@ -25,10 +25,10 @@ trait Stream[+A] {
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
 
-  def take(n: Int): Stream[A] = this match {
-    case Cons(h, _) if (n == 1) => cons(h(), empty)
-    case Cons(h, t) if (n > 1)  => cons(h(), t().take(n - 1))
-    case _                      => empty
+  def take(n: Int): Stream[A] = unfold((this, n)) {
+    case (Cons(h, t), 1)            => Some((h(), (empty, 0)))
+    case (Cons(h, t), i) if (i > 1) => Some((h(), (t(), i - 1)))
+    case _                          => None
   }
 
   @annotation.tailrec
@@ -37,8 +37,10 @@ trait Stream[+A] {
     case _                     => this
   }
 
-  def takeWhile(p: A => Boolean): Stream[A] =
-    foldRight(Stream.empty[A])((a, s) => if (p(a)) cons(a, s) else s)
+  def takeWhile(p: A => Boolean): Stream[A] = unfold(this) {
+    case Cons(h, t) if p(h()) => Some((h(), t()))
+    case _                    => None
+  }
 
   def forAll(p: A => Boolean): Boolean = foldRight(true)((a, x) => p(a) && x)
 
@@ -46,8 +48,10 @@ trait Stream[+A] {
 
   def toList: List[A] = foldLeft(Nil: List[A])((acc, a) => a :: acc).reverse
 
-  def map[B](f: A => B): Stream[B] =
-    foldRight(empty[B])((a, bs) => cons(f(a), bs))
+  def map[B](f: A => B): Stream[B] = unfold(this) {
+    case Cons(h, t) => Some((f(h()), t()))
+    case _          => None
+  }
 
   def filter(p: A => Boolean): Stream[A] =
     foldRight(empty[A])((a, bs) => if (p(a)) cons(a, bs) else bs)
@@ -57,8 +61,21 @@ trait Stream[+A] {
 
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(empty[B])((a, bs) => f(a).append(bs))
-  // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
-  // writing your own function signatures.
+
+  def zipWith[B, C](that: Stream[B])(f: (A, B) => C): Stream[C] =
+    unfold(this, that) {
+      case (Cons(h1, t1), Cons(h2, t2)) => Some((f(h1(), h2()), (t1(), t2())))
+      case _                            => None
+    }
+
+  def zipAll[B](that: Stream[B]): Stream[(Option[A], Option[B])] =
+    unfold(this, that) {
+      case (Cons(h1, t1), Cons(h2, t2)) =>
+        Some(((Some(h1()), Some(h2())), (t1(), t2())))
+      case (Cons(h1, t1), Empty) => Some(((Some(h1()), None), (t1(), empty)))
+      case (Empty, Cons(h2, t2)) => Some(((None, Some(h2())), (empty, t2())))
+      case _                     => None
+    }
 
   def startsWith[B](s: Stream[B]): Boolean = ???
 }

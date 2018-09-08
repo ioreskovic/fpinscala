@@ -199,4 +199,27 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			Stream.fibs.take(5).toList should be (List(0, 1, 1, 2, 3))
 		}
 	}
+
+	"Zipping two streams" should {
+		"produce a stream with size of shorter stream" in {
+			val s1 = Stream(1, 2, 3)
+			val s2 = Stream(1.0, 2.0)
+			val f: (Int, Double) => String = (i, d) => (i + d).toString
+
+			s1.zipWith(s2)(f).toList should be (List("2.0", "4.0"))
+		}
+	}
+
+	"Zipping all of two streams" should {
+		"produce elements as long any stream has more elements" in {
+			val s1 = Stream(1, 2, 3)
+			val s2 = Stream('a')
+
+			s1.zipAll(s2).toList should be (List(
+				(Some(1), Some('a')),
+				(Some(2), None),
+				(Some(3), None)
+			))
+		}
+	}
 }
