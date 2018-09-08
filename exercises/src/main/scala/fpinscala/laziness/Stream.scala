@@ -79,7 +79,16 @@ object Stream {
     else cons(as.head, apply(as.tail: _*))
 
   val ones: Stream[Int]         = Stream.cons(1, ones)
-  def from(n: Int): Stream[Int] = ???
+
+  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+
+  val fibs: Stream[Int] = {
+    def loop(a: Int, b: Int): Stream[Int] = Stream.cons(a, loop(b, b + a))
+
+    loop(0, 1)
+  }
+
+  def from(n: Int): Stream[Int] = Stream.cons(n, from(n + 1))
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
 }

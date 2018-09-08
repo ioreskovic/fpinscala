@@ -179,4 +179,24 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 				.toList should be (List("1", "2", "3", "10", "11", "12"))
 		}
 	}
+
+	"Creating constant stream" should {
+		"always contain same constant element" in {
+			val element = 3
+			val n = 5
+			Stream.constant(element).take(n).toList should be (List.fill(n)(element))
+		}
+	}
+
+	"Creating increasing int stream" should {
+		"yield elements in increasing order" in {
+			Stream.from(0).take(5).toList should be (List(0, 1, 2, 3, 4))
+		}
+	}
+
+	"Creating Fibonnaci stream" should {
+		"yield Fibonnaci sequence elements" in {
+			Stream.fibs.take(5).toList should be (List(0, 1, 1, 2, 3))
+		}
+	}
 }
