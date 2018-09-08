@@ -13,7 +13,7 @@ trait Stream[+A] {
   @annotation.tailrec
   final def foldLeft[B](z: => B)(f: (=> B, A) => B): B = this match {
     case Cons(h, t) => t().foldLeft(f(z, h()))(f)
-    case _ => z 
+    case _          => z
   }
 
   def exists(p: A => Boolean): Boolean =
@@ -24,9 +24,18 @@ trait Stream[+A] {
     case Empty      => None
     case Cons(h, t) => if (f(h())) Some(h()) else t().find(f)
   }
-  def take(n: Int): Stream[A] = ???
 
-  def drop(n: Int): Stream[A] = ???
+  def take(n: Int): Stream[A] = this match {
+    case Cons(h, _) if (n == 1) => cons(h(), empty)
+    case Cons(h, t) if (n > 1)  => cons(h(), t().take(n - 1))
+    case _                      => empty
+  }
+
+  @annotation.tailrec
+  final def drop(n: Int): Stream[A] = this match {
+    case Cons(_, t) if (n > 0) => t().drop(n - 1)
+    case _                     => this
+  }
 
   def takeWhile(p: A => Boolean): Stream[A] = ???
 

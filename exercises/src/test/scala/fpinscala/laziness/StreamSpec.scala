@@ -19,4 +19,46 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Taking n elements from Stream" when {
+		"it is empty" should {
+			"yield empty stream" in {
+				Stream.empty.take(1) should be (Stream.empty)
+			}
+		}
+
+		"it has less elements than required" should {
+			"yield all elements" in {
+				Stream(1, 2, 3).take(5).toList should be (List(1, 2, 3))
+			}
+		}
+
+		"it has more elements than required" should {
+			"yield first n elements" in {
+				Stream(1, 2, 3, 4, 5).take(3).toList should be (List(1, 2, 3))
+			}
+		}
+	}
+
+	"Dropping n elements from Stream" when {
+		"it is empty" should {
+			"yield that same stream" in {
+				val emptyStream = Stream.empty
+
+				emptyStream.drop(5) should be theSameInstanceAs emptyStream
+			}
+		}
+
+		"it has less elements than required" should {
+			"yield empty stream" in {
+				Stream(1, 2, 3).drop(5) should be (Stream.empty)
+			}
+		}
+
+		"it has more elements than required" should {
+			"yield remainder of the stream in original order" in {
+				Stream(1, 2, 3, 4, 5).drop(3).toList should be (List(4, 5))
+			}
+		}
+	}
 }
