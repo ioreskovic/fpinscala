@@ -82,12 +82,16 @@ trait Stream[+A] {
       case (maybeA, maybeB) => maybeA == maybeB
     }
 
-  def tails: Stream[Stream[A]] =
-    unfold(this) {
-      case s @ Cons(h, t) => Some((s, t()))
-      case Empty          => None
-    }.append(Stream(empty))
+  def tails: Stream[Stream[A]] = scanRight(empty[A])(cons(_, _))
+
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] =
+    foldRight((z, Stream(z)))((a, state) => {
+      lazy val (currHead, acc) = state
+      val newElem = f(a, currHead)
+      (newElem, cons(newElem, acc))
+    })._2
 }
+
 case object Empty                                   extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
 
