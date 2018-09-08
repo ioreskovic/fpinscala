@@ -117,4 +117,66 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Extracting head" when {
+		"stream is empty" should {
+			"yield None" in {
+				Stream.empty[Int].headOption should be (None)
+			}
+		}
+
+		"stream is not empty" should {
+			"yield some first element" in {
+				Stream(1, 2, 3).headOption should be (Some(1))
+			}
+		}
+	}
+
+	"Mapping over stream" should {
+		"yield transformed stream" in {
+			val f: Int => String = _.toString
+
+			Stream(1, 2, 3).map(f).toList should be (List(f(1), f(2), f(3)))
+		}
+	}
+
+	"Filtering over stream" should {
+		"retain matching elements in order" in {
+			Stream(1, 2, 3, 4, 5).filter(_ % 2 == 0).toList should be (List(2, 4))
+		}
+	}
+
+	"Appending to stream" when {
+		"original is empty" should {
+			"yield other stream" in {
+				val secondStream = Stream(1, 2, 3)
+
+				Stream.empty[Int].append(secondStream).toList should be (secondStream.toList)
+			}
+		}
+
+		"original is not empty" should {
+			"yield stream concatenation" in {
+				val firstStream = Stream(1, 2, 3)
+				val secondStream = Stream(4, 5, 6)
+
+				firstStream.append(secondStream).toList should be (firstStream.toList ::: secondStream.toList)
+			}
+		}
+
+		"second stream is empty" should {
+			"yield first stream" in {
+				val firstStream = Stream(1, 2, 3)
+
+				firstStream.append(Stream.empty).toList should be (firstStream.toList)
+			}
+		}
+	}
+
+	"Flatmapping over stream" should {
+		"yield all elements in order" in {
+			Stream(1, 10).flatMap(i => Stream(i, i + 1, i + 2).map(_.toString))
+				.toList should be (List("1", "2", "3", "10", "11", "12"))
+		}
+	}
 }
