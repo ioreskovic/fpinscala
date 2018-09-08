@@ -87,7 +87,7 @@ trait Stream[+A] {
   def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] =
     foldRight((z, Stream(z)))((a, state) => {
       lazy val (currHead, acc) = state
-      val newElem = f(a, currHead)
+      val newElem              = f(a, currHead)
       (newElem, cons(newElem, acc))
     })._2
 }
