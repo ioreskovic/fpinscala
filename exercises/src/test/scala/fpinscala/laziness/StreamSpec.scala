@@ -95,4 +95,26 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Checking if all elements of a stream satisfy predicate" when {
+		"stream is empty" should {
+			"yield true" in {
+				Stream().forAll(_ => true) should be (true)
+			}
+		}
+
+		"stream is not empty" when {
+			"not all elements hold" should {
+				"yield false" in {
+					Stream(1, 2, 3).forAll(_ < 2) should be (false)
+				}
+			}
+
+			"all elements hold" should {
+				"yield true" in {
+					Stream(1, 2, 3).forAll(_ => true) should be (true)
+				}
+			}
+		}
+	}
 }
