@@ -10,6 +10,12 @@ trait Stream[+A] {
       case _ => z
     }
 
+  @annotation.tailrec
+  final def foldLeft[B](z: => B)(f: (=> B, A) => B): B = this match {
+    case Cons(h, t) => t().foldLeft(f(z, h()))(f)
+    case _ => z 
+  }
+
   def exists(p: A => Boolean): Boolean =
     foldRight(false)((a, b) => p(a) || b) // Here `b` is the unevaluated recursive step that folds the tail of the stream. If `p(a)` returns `true`, `b` will never be evaluated and the computation terminates early.
 
@@ -27,6 +33,8 @@ trait Stream[+A] {
   def forAll(p: A => Boolean): Boolean = ???
 
   def headOption: Option[A] = ???
+
+  def toList: List[A] = foldLeft(Nil: List[A])((acc, a) => a :: acc).reverse
 
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
