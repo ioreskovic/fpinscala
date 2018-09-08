@@ -61,4 +61,38 @@ class StreamSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChec
 			}
 		}
 	}
+
+	"Taking elements from Stream" when {
+		"it is empty" when {
+			"predicate holds indefinitely" should {
+				"yield that same empty stream" in {
+					val emptyStream = Stream.empty
+
+					emptyStream.takeWhile(_ => true) should be theSameInstanceAs emptyStream
+				}
+			}
+
+			"predicate does not hold at all" should {
+				"yield that same empty stream" in {
+					val emptyStream = Stream.empty
+
+					emptyStream.takeWhile(_ => false) should be theSameInstanceAs emptyStream
+				}
+			}
+		}
+
+		"it is not empty" when {
+			"predicate holds indefinitely" should {
+				"yield that entire stream" in {
+					Stream(1, 2, 3).takeWhile(_ => true).toList should be (List(1, 2, 3))
+				}
+			}
+
+			"predicate does not hold at all" should {
+				"yield empty stream" in {
+					Stream(1, 2, 3).takeWhile(_ => false) should be (Stream.empty)
+				}
+			}
+		}
+	}
 }
