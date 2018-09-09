@@ -31,4 +31,12 @@ class StateSpec extends WordSpec with Matchers with GeneratorDrivenPropertyCheck
 			RNG.ints(n)(seedRng)._1.length should be (n)
 		}
 	}
+
+	"Sequencing rands" should {
+		"produce rand of a sequence" in {
+			val r = Simple(0L)
+
+			RNG.sequence(List(unit(1), unit(2), unit(3)))(r)._1 should be (List(1, 2, 3))
+		}
+	}
 }
