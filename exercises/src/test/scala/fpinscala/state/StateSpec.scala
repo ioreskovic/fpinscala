@@ -9,6 +9,8 @@ import fpinscala.state.Input
 import fpinscala.state.Coin
 import fpinscala.state.Turn
 import fpinscala.state.Machine._
+import fpinscala.state.CandyMachine
+import fpinscala.state.CandyMachine._
 
 class StateSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks {
 	"Generating non-negative int" should {
@@ -96,12 +98,14 @@ class StateSpec extends WordSpec with Matchers with GeneratorDrivenPropertyCheck
 
 	"Feeding valid inputs to machine" should {
 		"Leave machine in correct state" in {
-			val m0 = Machine(true, 5, 10)
+			val initialState = CandyMachine(true, 5, 10)
 			val inputs = List(Coin, Turn, Coin, Turn, Coin, Turn, Coin, Turn)
 
-			val (_, m1) = State.simulateMachine(inputs).run(m0)
+			val (candies, coins) = CandyMachine.simulateMachine(inputs)(m => 
+				(m.candies, m.coins)).run(initialState)._1
 
-			m1 should be (Machine(true, 1, 14))
+			candies should be (initialState.candies - 4)
+			coins should be (initialState.coins + 4)
 		}
 	}
 }
