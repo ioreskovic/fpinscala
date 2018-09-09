@@ -23,4 +23,12 @@ class StateSpec extends WordSpec with Matchers with GeneratorDrivenPropertyCheck
 			}
 		}
 	}
+
+	"Generating list of random ints" should {
+		"produce required number of elements" in {
+			val n = 10
+			val seedRng = Simple(0L)
+			RNG.ints(n)(seedRng)._1.length should be (n)
+		}
+	}
 }
