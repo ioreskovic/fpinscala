@@ -143,5 +143,20 @@ object State {
     } yield ()
 
   type Rand[A] = State[RNG, A]
-  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = ???
+
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] =
+    for {
+      _ <- sequence(
+            inputs.map(i => modify[Machine](m => machineFunctionality(m, i))))
+      m <- get
+    } yield (m.coins, m.candies)
+
+  def machineFunctionality(m: Machine, i: Input) = (m, i) match {
+    case (Machine(_, 0, _), _) => m
+    case (Machine(true, candies, coins), Coin) =>
+      Machine(false, candies, coins + 1)
+    case (Machine(false, candies, coins), Turn) =>
+      Machine(true, candies - 1, coins)
+    case _ => m
+  }
 }
