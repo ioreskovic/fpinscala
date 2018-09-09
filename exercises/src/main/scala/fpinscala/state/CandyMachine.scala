@@ -1,5 +1,7 @@
 package fpinscala.state
 
+import fpinscala.applicative.StateUtil._
+
 case class CandyMachine(locked: Boolean, candies: Int, coins: Int)
 
 object CandyMachine {
@@ -26,6 +28,6 @@ object CandyMachine {
       f: CandyMachine => R): State[CandyMachine, R] =
     for {
       ignoredAction <- combined(stateChanges(inputs))
-      currState     <- State.get
+      currState     <- get
     } yield f(currState)
 }
