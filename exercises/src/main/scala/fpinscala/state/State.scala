@@ -35,7 +35,9 @@ object RNG {
     else (i, nextRng)
   }
 
-  def double(rng: RNG): (Double, RNG) = ???
+  def double(rng: RNG): (Double, RNG) = nonNegativeInt(rng) match {
+    case (i, nextRng) => (i / (Int.MaxValue.toDouble + 1), nextRng)
+  }
 
   def intDouble(rng: RNG): ((Int, Double), RNG) = ???
 

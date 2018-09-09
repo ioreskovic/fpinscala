@@ -12,4 +12,15 @@ class StateSpec extends WordSpec with Matchers with GeneratorDrivenPropertyCheck
 			}
 		}
 	}
+
+	"Generating random double" should {
+		"produce number in range [0.0, 1.0> only" in {
+			forAll { (seed: Long) =>
+				val result = RNG.double(Simple(seed))._1
+
+				result should be >= 0.0
+				result should be < 1.0
+			}
+		}
+	}
 }
