@@ -16,4 +16,12 @@ class ParSpec extends AsyncWordSpec with Matchers with GeneratorDrivenPropertyCh
 			parC(es).get should be ("3.0")
 		}
 	}
+
+	"async computation" should {
+		"eventually yield" in {
+			val f: Int => Double = i => i + 1.0
+			val a = 2
+			Par.asyncF(f)(a)(es).get should be (f(a))
+		}
+	}
 }
