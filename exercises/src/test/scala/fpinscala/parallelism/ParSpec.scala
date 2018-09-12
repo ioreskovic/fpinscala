@@ -29,7 +29,7 @@ class ParSpec extends AsyncWordSpec with Matchers with GeneratorDrivenPropertyCh
 	"par mapping over list" should {
 		"eventually yield" in {
 			val f: Int => Double = i => i + 1.0
-			val as = (1 until 100).toList
+			val as = (1 until 3).toList
 
 			val parStart = System.nanoTime
 			val parResult = Par.parMap(as)(f)(es).get

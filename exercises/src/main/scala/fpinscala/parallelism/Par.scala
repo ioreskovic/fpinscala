@@ -102,6 +102,12 @@ object Par {
     sequence(fbs)
   }
 
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = {
+    val nestedPars = as.map(asyncF(a => if (f(a)) List(a) else List()))
+
+    map(sequence(nestedPars))(_.flatten)
+  }
+
   /* Gives us infix syntax for `Par`. */
   implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
 
