@@ -7,7 +7,7 @@ import fpinscala.parallelism.Par._
 import java.util.concurrent.{ Callable, Future, ExecutorService, Executors }
 
 class ParSpec extends AsyncWordSpec with Matchers with GeneratorDrivenPropertyChecks {
-	val es: ExecutorService = Executors.newCachedThreadPool()
+	val es: ExecutorService = Executors.newWorkStealingPool(8)
 
 	"map2" should {
 		"eventually combine results of 2 futures" in {
@@ -22,6 +22,28 @@ class ParSpec extends AsyncWordSpec with Matchers with GeneratorDrivenPropertyCh
 			val f: Int => Double = i => i + 1.0
 			val a = 2
 			Par.asyncF(f)(a)(es).get should be (f(a))
+		}
+	}
+
+	// This par takes waaay too long
+	"par mapping over list" should {
+		"eventually yield" in {
+			val f: Int => Double = i => i + 1.0
+			val as = (1 until 100).toList
+
+			val parStart = System.nanoTime
+			val parResult = Par.parMap(as)(f)(es).get
+			val parEnd = System.nanoTime
+			val parTime = parEnd - parStart
+
+			val seqStart = System.nanoTime
+			val seqResult = as.map(f)
+			val seqEnd = System.nanoTime
+			val seqTime = seqEnd - seqStart
+
+			println(s"Par time: $parTime")
+			println(s"Seq time: $seqTime")
+			parResult should be (seqResult)
 		}
 	}
 }
