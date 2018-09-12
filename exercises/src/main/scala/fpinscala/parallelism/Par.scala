@@ -19,12 +19,41 @@ object Par {
     def cancel(evenIfRunning: Boolean): Boolean = false
   }
 
-  def map2[A, B, C](a: Par[A], b: Par[B])(f: (A, B) => C): Par[C] = // `map2` doesn't evaluate the call to `f` in a separate logical thread, in accord with our design choice of having `fork` be the sole function in the API for controlling parallelism. We can always do `fork(map2(a,b)(f))` if we want the evaluation of `f` to occur in a separate thread.
-    (es: ExecutorService) => {
-      val af = a(es)
-      val bf = b(es)
-      UnitFuture(f(af.get, bf.get)) // This implementation of `map2` does _not_ respect timeouts, and eagerly waits for the returned futures. This means that even if you have passed in "forked" arguments, using this map2 on them will make them wait. It simply passes the `ExecutorService` on to both `Par` values, waits for the results of the Futures `af` and `bf`, applies `f` to them, and wraps them in a `UnitFuture`. In order to respect timeouts, we'd need a new `Future` implementation that records the amount of time spent evaluating `af`, then subtracts that time from the available time allocated for evaluating `bf`.
+  private case class Map2Future[A, B, C](a: Future[A],
+                                         b: Future[B],
+                                         f: (A, B) => C)
+      extends Future[C] {
+    @volatile var cache: Option[C] = None
+
+    def isDone      = cache.isDefined
+    def isCancelled = a.isCancelled || b.isCancelled
+    def cancel(evenIfRunning: Boolean): Boolean =
+      a.cancel(evenIfRunning) || b.cancel(evenIfRunning)
+
+    def get = compute(Long.MaxValue)
+    def get(timeout: Long, units: TimeUnit): C =
+      compute(TimeUnit.NANOSECONDS.convert(timeout, units))
+
+    private def compute(timeoutNanos: Long): C = cache match {
+      case Some(c) => c
+      case None => {
+        val startA  = System.nanoTime
+        val aResult = a.get(timeoutNanos, TimeUnit.NANOSECONDS)
+        val stopA   = System.nanoTime
+        val timeA   = stopA - startA
+        val bResult = b.get(timeoutNanos - timeA, TimeUnit.NANOSECONDS)
+        val cResult = f(aResult, bResult)
+        cache = Some(cResult)
+        cResult
+      }
     }
+  }
+
+  def map2[A, B, C](a: Par[A], b: Par[B])(f: (A, B) => C): Par[C] = es => {
+    val af = a(es)
+    val bf = b(es)
+    Map2Future(af, bf, f)
+  }
 
   def fork[A](a: => Par[A]): Par[A] = // This is the simplest and most natural implementation of `fork`, but there are some problems with it--for one, the outer `Callable` will block waiting for the "inner" task to complete. Since this blocking occupies a thread in our thread pool, or whatever resource backs the `ExecutorService`, this implies that we're losing out on some potential parallelism. Essentially, we're using two threads when one should suffice. This is a symptom of a more serious problem with the implementation, and we will discuss this later in the chapter.
     es =>
@@ -48,6 +77,36 @@ object Par {
       if (run(es)(cond).get)
         t(es) // Notice we are blocking on the result of `cond`.
       else f(es)
+
+  def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
+
+  def asyncF[A, B](f: A => B): A => Par[B] = a => lazyUnit(f(a))
+
+  def sequenceNaive[A](ps: List[Par[A]]): Par[List[A]] =
+    ps.foldRight(unit(List[A]()))((pa, pacc) => map2(pa, pacc)(_ :: _))
+
+  def sequenceBalanced[A](as: IndexedSeq[Par[A]]): Par[IndexedSeq[A]] = fork {
+    if (as.isEmpty) unit(Vector())
+    else if (as.length == 1) map(as.head)(a => Vector(a))
+    else {
+      val (l, r) = as.splitAt(as.length / 2)
+      map2(sequenceBalanced(l), sequenceBalanced(r))(_ ++ _)
+    }
+  }
+
+  def sequence[A](as: List[Par[A]]): Par[List[A]] =
+    map(sequenceBalanced(as.toIndexedSeq))(_.toList)
+
+  def parMap[A, B](ps: List[A])(f: A => B): Par[List[B]] = fork {
+    val fbs: List[Par[B]] = ps.map(asyncF(f))
+    sequence(fbs)
+  }
+
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = {
+    val nestedPars = as.map(asyncF(a => if (f(a)) List(a) else List()))
+
+    map(sequence(nestedPars))(_.flatten)
+  }
 
   /* Gives us infix syntax for `Par`. */
   implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
