@@ -175,29 +175,46 @@ object Nonblocking {
       choiceN(map(a)(b => if (b) 0 else 1))(List(ifTrue, ifFalse))
 
     def choiceMap[K, V](p: Par[K])(ps: Map[K, Par[V]]): Par[V] =
-      ???
+      es =>
+        new Future[V] {
+          def apply(cb: V => Unit,
+                    eh: Throwable => Unit = e => throw new RuntimeException(e))
+            : Unit =
+            p(es)(k => {
+              eval(es)(ps(k)(es)(cb, eh))
+            }, eh)
+      }
 
     // see `Nonblocking.scala` answers file. This function is usually called something else!
-    def chooser[A, B](p: Par[A])(f: A => Par[B]): Par[B] =
-      ???
+    def chooser[A, B](p: Par[A])(f: A => Par[B]): Par[B] = flatMap(p)(f)
 
     def flatMap[A, B](p: Par[A])(f: A => Par[B]): Par[B] =
-      ???
+      es =>
+        new Future[B] {
+          def apply(cb: B => Unit,
+                    eh: Throwable => Unit = e => throw new RuntimeException(e))
+            : Unit = p(es)(a => { f(a)(es)(cb, eh) }, eh)
+      }
 
     def choiceViaChooser[A](p: Par[Boolean])(f: Par[A], t: Par[A]): Par[A] =
-      ???
+      chooser(p)(b => if (b) t else f)
 
     def choiceNChooser[A](p: Par[Int])(choices: List[Par[A]]): Par[A] =
-      ???
+      chooser(p)(i => choices(i))
 
     def join[A](p: Par[Par[A]]): Par[A] =
-      ???
+      es =>
+        new Future[A] {
+          def apply(ca: A => Unit,
+                    eh: Throwable => Unit = e => throw new RuntimeException(e))
+            : Unit = p(es)(pp => eval(es)(pp(es)(ca, eh)))
+      }
 
     def joinViaFlatMap[A](a: Par[Par[A]]): Par[A] =
-      ???
+      flatMap(a)(identity)
 
     def flatMapViaJoin[A, B](p: Par[A])(f: A => Par[B]): Par[B] =
-      ???
+      join(map(p)(f))
 
     /* Gives us infix syntax for `Par`. */
     implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
@@ -207,6 +224,7 @@ object Nonblocking {
       def map[B](f: A => B): Par[B]                     = Par.map(p)(f)
       def map2[B, C](b: Par[B])(f: (A, B) => C): Par[C] = Par.map2(p, b)(f)
       def zip[B](b: Par[B]): Par[(A, B)]                = p.map2(b)((_, _))
+      def flatMap[B](f: A => Par[B]): Par[B]            = Par.flatMap(p)(f)
     }
   }
 }
