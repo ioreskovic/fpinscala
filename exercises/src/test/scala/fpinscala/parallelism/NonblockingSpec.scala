@@ -61,4 +61,13 @@ class NonblockingSpec extends AsyncWordSpec with Matchers with GeneratorDrivenPr
 			}
 		}
 	}
+
+	"choice 3" should {
+		"pick correctly" in {
+			val sixtyNine = Par.choiceN(Par.delay(1))(List(
+				Par.delay(42), Par.delay(69), Par.delay(22)))
+
+			Par.run(es)(sixtyNine) should be (69)
+		}
+	}
 }
