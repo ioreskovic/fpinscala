@@ -41,4 +41,28 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
 			}
 		}
 	}
+
+	"max of an empty list" should {
+		"throw exception" in {
+			assertThrows[UnsupportedOperationException] {
+				List[Int]().max
+			}
+		}
+	}
+
+	"max of a singleton list" should {
+		"match it's only element, head" in {
+			forAll (SCGen.listOfN(1, SCGen.choose(-100, 100))) { (l: List[Int]) =>
+				l.max should be (l.head)
+			}
+		}
+	}
+
+	"max of a list" should {
+		"yield the biggest element" in {
+			forAll (SCGen.listOfN(33, SCGen.choose(-100, 100))) { (l: List[Int]) =>
+				l.max should be (l.sortBy(- _).head)
+			}
+		}
+	}
 }
