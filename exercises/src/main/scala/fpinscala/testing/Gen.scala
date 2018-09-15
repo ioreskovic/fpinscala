@@ -14,21 +14,32 @@ shell, which you can fill in and modify while working through the chapter.
  */
 
 trait Prop {
-  def check: Boolean = ???
+  def check: Either[(FailedCase, SuccessCount), SuccessCount] = ???
   def &&(other: Prop): Prop = new Prop {
-    override def check: Boolean = Prop.this.check && other.check
+    override def check: Either[(FailedCase, SuccessCount), SuccessCount] = ???
   }
 }
 
 object Prop {
+  type SuccessCount = Int
+  type FailedCase = String
+
   def forAll[A](gen: Gen[A])(f: A => Boolean): Prop = ???
 }
 
 object Gen {
+  def choose(start: Int, stopExclusive: Int): Gen[Int] =
+    Gen(State[RNG, Int](RNG.nonNegativeInt)
+      .map(a => a / Int.MaxValue.toDouble)
+      .map(b => b / (1 / (stopExclusive - start)))
+      .map(c => c + start)
+      .map(d => d.toInt)
+    )
+
   def unit[A](a: => A): Gen[A] = ???
 }
 
-trait Gen[A] {
+case class Gen[A](sample: State[RNG,A]) {
   def map[A, B](f: A => B): Gen[B]          = ???
   def flatMap[A, B](f: A => Gen[B]): Gen[B] = ???
 }

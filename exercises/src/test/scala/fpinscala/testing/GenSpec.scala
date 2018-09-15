@@ -67,6 +67,7 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
 		}
 	}
 
+  /**
 	"checking combined two props" when {
 		"both check OK" should {
 			"yield true" in {
@@ -97,4 +98,5 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
 			}
 		}
 	}
+  */
 }
