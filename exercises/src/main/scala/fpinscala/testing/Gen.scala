@@ -46,6 +46,15 @@ object Gen {
 
   def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
     boolean.flatMap(b => if (b) g1 else g2)
+
+  def weighted[A](g1: (Gen[A], Double), g2: (Gen[A], Double)): Gen[A] =
+    Gen(
+      State(RNG.double)
+        .flatMap(
+          w =>
+            if (w < g1._2.abs / (g1._2.abs + g2._2.abs)) g1._1.sample
+            else g2._1.sample)
+    )
 }
 
 case class Gen[A](sample: State[RNG, A]) {
