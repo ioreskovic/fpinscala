@@ -3,6 +3,7 @@ package fpinscala.testing
 import org.scalatest._
 import org.scalatest.prop._
 import org.scalacheck.{ Gen => SCGen }
+import fpinscala.testing.Gen._
 
 class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks {
 
@@ -62,6 +63,37 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
 		"yield the biggest element" in {
 			forAll (SCGen.listOfN(33, SCGen.choose(-100, 100))) { (l: List[Int]) =>
 				l.max should be (l.sortBy(- _).head)
+			}
+		}
+	}
+
+	"checking combined two props" when {
+		"both check OK" should {
+			"yield true" in {
+				val ok1 = new Prop {
+					override def check: Boolean = true
+				}
+
+				val ok2 = new Prop {
+					override def check: Boolean = true
+				}
+
+				(ok1 && ok2).check should be (true)
+			}
+		}
+
+		"at least one checks false" should {
+			"yield false" in {
+				val ok = new Prop {
+					override def check: Boolean = true
+				}
+
+				val notOk = new Prop {
+					override def check: Boolean = false
+				}
+
+				(ok && notOk).check should be (false)
+				(notOk && ok).check should be (false)
 			}
 		}
 	}
