@@ -56,7 +56,28 @@ object Prop {
       s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
 }
 
-case class Prop(run: (TestCases, RNG) => Result)
+case class Prop(run: (TestCases, RNG) => Result) {
+  def &&(p: Prop): Prop = Prop { (n, rng) =>
+    run(n, rng) match {
+      case Passed => p.run(n, rng)
+      case f      => f
+    }
+  }
+
+  def ||(p: Prop): Prop = Prop { (n, rng) =>
+    run(n, rng) match {
+      case Falsified(e, _) => p.tag(e).run(n, rng)
+      case p               => p
+    }
+  }
+
+  def tag(msg: String) = Prop { (n, rng) =>
+    run(n, rng) match {
+      case Falsified(e, c) => Falsified(msg + "\n" + e, c)
+      case x               => x
+    }
+  }
+}
 
 object Gen {
   def choose(start: Int, stopExclusive: Int): Gen[Int] =
