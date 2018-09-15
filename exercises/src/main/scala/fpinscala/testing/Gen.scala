@@ -107,6 +107,10 @@ object Gen {
             if (w < g1._2.abs / (g1._2.abs + g2._2.abs)) g1._1.sample
             else g2._1.sample)
     )
+
+  def listOf[A](g: Gen[A]): SGen[List[A]] = SGen { n =>
+    listOfN(n, g)
+  }
 }
 
 case class Gen[A](sample: State[RNG, A]) {
