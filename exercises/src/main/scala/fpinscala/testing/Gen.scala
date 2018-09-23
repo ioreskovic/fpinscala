@@ -2,8 +2,8 @@ package fpinscala.testing
 
 import fpinscala.laziness.Stream
 import fpinscala.state._
-import fpinscala.parallelism._
-import fpinscala.parallelism.Par.Par
+import fpinscala.parallelism.Par2
+import fpinscala.parallelism.Par2._
 import Gen._
 import Prop._
 import java.util.concurrent.{Executors, ExecutorService}
@@ -95,6 +95,15 @@ object Prop {
       case Proved =>
         println(s"+ OK, proved property.")
     }
+
+  val S = weighted(choose(1, 4).map(Executors.newFixedThreadPool) -> .75,
+                   Gen.unit(Executors.newCachedThreadPool) -> .25)
+
+  def forAllPar[A](g: Gen[A])(f: A => Par[Boolean]): Prop =
+    forAll(S.map2(g)((_, _))) { case (s, a) => f(a)(s).get }
+
+  def checkPar(p: Par[Boolean]): Prop =
+    forAllPar(Gen.unit(()))(_ => p)
 }
 
 case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
@@ -161,12 +170,15 @@ object Gen {
     def unapply[A, B](p: (A, B)) = Some(p)
   }
 
+  def equal[A](p: Par[A], p2: Par[A]): Par[Boolean] =
+    Par2.map2(p, p2)(_ == _)
+
   def pint2(genValue: Gen[Int], genSize: Gen[Int]): Gen[Par[Int]] =
     genValue
       .listOfN(genSize)
       .map(list =>
-        list.foldLeft(Par.unit(0))((parAcc, i) =>
-          Par.fork { Par.map2(parAcc, Par.unit(i))(_ + _) }))
+        list.foldLeft(Par2.unit(0))((parAcc, i) =>
+          Par2.fork { Par2.map2(parAcc, Par2.unit(i))(_ + _) }))
 }
 
 case class Gen[A](sample: State[RNG, A]) {

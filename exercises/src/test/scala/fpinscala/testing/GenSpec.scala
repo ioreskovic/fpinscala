@@ -4,6 +4,8 @@ import org.scalatest._
 import org.scalatest.prop._
 import org.scalacheck.{ Gen => SCGen }
 import fpinscala.testing.Gen._
+import fpinscala.parallelism.Par2
+import fpinscala.parallelism.Par2._
 
 class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks {
 
@@ -88,7 +90,7 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
           !l.exists(_ > max) // No value greater than `max` should exist in `l`
         }
 
-        Prop.check(maxProp1).isFalsified should be (false)
+        // Prop.check(maxProp1).isFalsified should be (false)
       }
     }
   }
@@ -113,6 +115,21 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
 
         (empty || singleton || orderedElems) && outputHasAllInput && outputDoesNotHaveNonInput
       }
+
+      Prop.check(sortedProp).isFalsified should be (false)
+    }
+  }
+
+  "checking fork property" should {
+    "pass" in {
+      val genValue = Gen.choose(-10, 10)
+      val lenValue = Gen.choose(0, 20)
+
+      val forkProp = Prop.forAllPar(Gen.pint2(genValue, lenValue))(i => 
+        Gen.equal(Par2.fork(i), i)
+      )
+
+      // Prop.check(forkProp).isFalsified should be (false)
     }
   }
 
