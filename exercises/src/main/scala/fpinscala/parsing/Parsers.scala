@@ -28,9 +28,13 @@ trait Parsers[Parser[+ _]] { self => // so inner classes may call methods of tra
 
   def slice[A](p: Parser[A]): Parser[String] = ???
 
-  def many1[A](p: Parser[A]): Parser[List[A]] = ???
+  def many1[A](p: Parser[A]): Parser[List[A]] =
+    map2(p, many(p))(_ :: _)
 
   def product[A, B](p: Parser[A], p2: => Parser[B]): Parser[(A, B)] = ???
+
+  def map2[A, B, C](p: Parser[A], p2: Parser[B])(f: (A, B) => C): Parser[C] =
+    product(p, p2).map(f.tupled)
 
   case class ParserOps[A](p: Parser[A]) {
     def |[B >: A](p2: => Parser[B]): Parser[B] =
