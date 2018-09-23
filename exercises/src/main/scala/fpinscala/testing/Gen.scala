@@ -179,6 +179,15 @@ object Gen {
       .map(list =>
         list.foldLeft(Par2.unit(0))((parAcc, i) =>
           Par2.fork { Par2.map2(parAcc, Par2.unit(i))(_ + _) }))
+
+  def genStringInt[A](g: Gen[A]): Gen[String => A] = Gen {
+    State { (rng: RNG) =>
+      val (seed, nextRng) = rng.nextInt
+      val genF = (s: String) =>
+        g.sample.run(RNG.Simple(seed.toLong ^ s.hashCode.toLong))._1
+      (genF, nextRng)
+    }
+  }
 }
 
 case class Gen[A](sample: State[RNG, A]) {
