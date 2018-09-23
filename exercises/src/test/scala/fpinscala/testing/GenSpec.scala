@@ -93,6 +93,29 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
     }
   }
 
+  "checking List#sorted property" should {
+    "pass" in {
+      val smallInt = Gen.choose(-10, 10)
+
+      val sortedProp = Prop.forAll(Gen.listOf(smallInt)) { list =>
+        val sortedList = list.sorted
+
+        val empty = sortedList.isEmpty
+        val singleton = sortedList.length == 1
+
+        // bah, cant use List#sliding to get a Tuple2 here, a shame
+        val orderedElems = !sortedList.zip(sortedList).exists {
+          case (a, b) => a > b
+        }
+
+        val outputHasAllInput = !list.exists(!sortedList.contains(_))
+        val outputDoesNotHaveNonInput = !sortedList.exists(!list.contains(_))
+
+        (empty || singleton || orderedElems) && outputHasAllInput && outputDoesNotHaveNonInput
+      }
+    }
+  }
+
   /**
 	"checking combined two props" when {
 		"both check OK" should {
