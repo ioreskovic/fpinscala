@@ -161,6 +161,12 @@ object Gen {
     def unapply[A, B](p: (A, B)) = Some(p)
   }
 
+  def pint2(genValue: Gen[Int], genSize: Gen[Int]): Gen[Par[Int]] =
+    genValue
+      .listOfN(genSize)
+      .map(list =>
+        list.foldLeft(Par.unit(0))((parAcc, i) =>
+          Par.fork { Par.map2(parAcc, Par.unit(i))(_ + _) }))
 }
 
 case class Gen[A](sample: State[RNG, A]) {
@@ -170,9 +176,6 @@ case class Gen[A](sample: State[RNG, A]) {
   def flatMap[B](f: A => Gen[B]): Gen[B] =
     Gen(sample.flatMap(a => f(a).sample))
 
-  def listOfN(size: Gen[Int]): Gen[List[A]] =
-    size.flatMap(n => Gen.listOfN(n, this))
-
   def unsized: SGen[A] = SGen(_ => this)
 
   def map2[B, C](g: Gen[B])(f: (A, B) => C): Gen[C] =
@@ -180,6 +183,14 @@ case class Gen[A](sample: State[RNG, A]) {
 
   def **[B](g: Gen[B]): Gen[(A, B)] =
     (this map2 g)((_, _))
+
+  /* A method alias for the function we wrote earlier. */
+  def listOfN(size: Int): Gen[List[A]] =
+    Gen.listOfN(size, this)
+
+  /* A version of `listOfN` that generates the size to use dynamically. */
+  def listOfN(size: Gen[Int]): Gen[List[A]] =
+    size flatMap (n => this.listOfN(n))
 }
 
 case class SGen[A](forSize: Int => Gen[A]) {
