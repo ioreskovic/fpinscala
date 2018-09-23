@@ -73,11 +73,17 @@ object Prop {
       prop.run(max, n, rng)
   }
 
+  def check(p: Prop,
+            maxSize: Int = 100,
+            testCases: Int = 100,
+            rng: RNG = RNG.Simple(System.currentTimeMillis)): Result =
+    p.run(maxSize, testCases, rng)
+
   def run(p: Prop,
           maxSize: Int = 100,
           testCases: Int = 100,
           rng: RNG = RNG.Simple(System.currentTimeMillis)): Unit =
-    p.run(maxSize, testCases, rng) match {
+    check(p, maxSize, testCases, rng) match {
       case Falsified(msg, n) =>
         println(s"! Falsified after $n passed tests:\n $msg")
       case Passed =>
@@ -139,6 +145,10 @@ object Gen {
 
   def listOf[A](g: Gen[A]): SGen[List[A]] = SGen { n =>
     listOfN(n, g)
+  }
+
+  def listOf1[A](g: Gen[A]): SGen[List[A]] = SGen { n =>
+    listOfN(1, g)
   }
 }
 

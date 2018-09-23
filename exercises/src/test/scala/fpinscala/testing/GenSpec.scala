@@ -67,6 +67,32 @@ class GenSpec extends WordSpec with Matchers with GeneratorDrivenPropertyChecks 
 		}
 	}
 
+  "checking max list property" when {
+    "using empty list generators" should {
+      "yield falsified" in {
+        val smallInt = Gen.choose(-10, 10)
+        val maxProp = Prop.forAll(Gen.listOf(smallInt)) { l =>
+          val max = l.max
+          !l.exists(_ > max) // No value greater than `max` should exist in `l`
+        }
+
+        Prop.check(maxProp).isFalsified should be (true)
+      }
+    }
+
+    "using non-empty list generators" should {
+      "yield passed" in {
+        val smallInt = Gen.choose(-10, 10)
+        val maxProp1 = Prop.forAll(Gen.listOf1(smallInt)) { l =>
+          val max = l.max
+          !l.exists(_ > max) // No value greater than `max` should exist in `l`
+        }
+
+        Prop.check(maxProp1).isFalsified should be (false)
+      }
+    }
+  }
+
   /**
 	"checking combined two props" when {
 		"both check OK" should {
