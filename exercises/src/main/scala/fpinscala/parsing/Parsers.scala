@@ -20,8 +20,11 @@ trait Parsers[Parser[+ _]] { self => // so inner classes may call methods of tra
     string(c.toString).map(_.charAt(0))
 
   def or[A](p1: Parser[A], p2: => Parser[A]): Parser[A] = ???
-  def map[A, B](a: Parser[A])(f: A => B): Parser[B]     = ???
-  def many[A](p: Parser[A]): Parser[List[A]]            = ???
+
+  def map[A, B](a: Parser[A])(f: A => B): Parser[B] = ???
+
+  def many[A](p: Parser[A]): Parser[List[A]] =
+    map2(p, many(p))(_ :: _).or(succeed(Nil))
 
   def succeed[A](a: A): Parser[A] =
     string("") map (_ => a)
