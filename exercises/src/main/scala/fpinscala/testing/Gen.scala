@@ -26,6 +26,10 @@ case class Falsified(failure: FailedCase, successes: SuccessCount)
   def isFalsified = true
 }
 
+case object Proved extends Result {
+  def isFalsified = false
+}
+
 object Prop {
   type SuccessCount = Int
   type FailedCase   = String
@@ -88,6 +92,8 @@ object Prop {
         println(s"! Falsified after $n passed tests:\n $msg")
       case Passed =>
         println(s"+ OK, passed $testCases tests.")
+      case Proved =>
+        println(s"+ OK, proved property.")
     }
 }
 
@@ -150,6 +156,11 @@ object Gen {
   def listOf1[A](g: Gen[A]): SGen[List[A]] = SGen { n =>
     listOfN(1, g)
   }
+
+  object ** {
+    def unapply[A, B](p: (A, B)) = Some(p)
+  }
+
 }
 
 case class Gen[A](sample: State[RNG, A]) {
@@ -163,6 +174,12 @@ case class Gen[A](sample: State[RNG, A]) {
     size.flatMap(n => Gen.listOfN(n, this))
 
   def unsized: SGen[A] = SGen(_ => this)
+
+  def map2[B, C](g: Gen[B])(f: (A, B) => C): Gen[C] =
+    Gen(sample.map2(g.sample)(f))
+
+  def **[B](g: Gen[B]): Gen[(A, B)] =
+    (this map2 g)((_, _))
 }
 
 case class SGen[A](forSize: Int => Gen[A]) {
@@ -173,4 +190,7 @@ case class SGen[A](forSize: Int => Gen[A]) {
 
   def flatMap[B](f: A => SGen[B]): SGen[B] =
     SGen(i => forSize(i).flatMap(a => f(a).forSize(i)))
+
+  def **[B](s2: SGen[B]): SGen[(A, B)] =
+    SGen(n => apply(n) ** s2(n))
 }
