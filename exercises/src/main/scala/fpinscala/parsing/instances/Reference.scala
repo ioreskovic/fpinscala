@@ -94,8 +94,9 @@ object Reference extends Parsers[Parser] {
   def or[A](p1: Parser[A], p2: => Parser[A]): Parser[A] = { state =>
     {
       p1(state) match {
-        case Failure(e, false) => p2(state)
-        case x                 => x
+        case Failure(e, false) =>
+          p2(state).mapError(e2 => ParseError(e2.stack ++ e.stack))
+        case x => x
       }
     }
   }
