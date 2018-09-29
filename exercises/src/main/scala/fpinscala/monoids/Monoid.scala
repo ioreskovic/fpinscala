@@ -41,7 +41,19 @@ object Monoid {
     def zero                         = true
   }
 
-  def optionMonoid[A]: Monoid[Option[A]] = ???
+  def optionMonoid[A](implicit ev: Monoid[A]): Monoid[Option[A]] =
+    new Monoid[Option[A]] {
+      def op(a1: Option[A], a2: Option[A]) = a1 match {
+        case None => a2
+        case Some(x) =>
+          a2 match {
+            case None    => a1
+            case Some(y) => Some(ev.op(x, y))
+          }
+      }
+
+      def zero = None
+    }
 
   def endoMonoid[A]: Monoid[A => A] = ???
 
