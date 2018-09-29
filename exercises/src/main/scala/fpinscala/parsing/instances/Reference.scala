@@ -83,10 +83,16 @@ object Reference extends Parsers[Parser] {
     }
   }
 
+  def scope[A](msg: String)(p: Parser[A]): Parser[A] = { state =>
+    p(state).mapError(_.push(state.loc, msg))
+  }
+
+  def label[A](msg: String)(p: Parser[A]): Parser[A] = { state =>
+    p(state).mapError(_.label(msg))
+  }
+
   def attempt[A](p: Parser[A]): Parser[A]                        = ???
   def flatMap[A, B](p: Parser[A])(f: A => Parser[B]): Parser[B]  = ???
-  def label[A](msg: String)(p: Parser[A]): Parser[A]             = ???
   def or[A](p1: Parser[A], p2: => Parser[A]): Parser[A]          = ???
   def run[A](p: Parser[A])(input: String): Either[ParseError, A] = ???
-  def scope[A](msg: String)(p: Parser[A]): Parser[A]             = ???
 }

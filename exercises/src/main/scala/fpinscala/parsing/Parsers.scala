@@ -174,7 +174,19 @@ trait Parsers[Parser[+ _]] { self => // so inner classes may call methods of tra
   }
 }
 
-case class ParseError(stack: List[(Location, String)] = Nil) {}
+case class ParseError(stack: List[(Location, String)] = Nil) {
+  def push(loc: Location, msg: String): ParseError =
+    copy(stack = (loc, msg) :: stack)
+
+  def label[A](s: String): ParseError =
+    ParseError(latestLoc.map((_, s)).toList)
+
+  def latest: Option[(Location, String)] =
+    stack.lastOption
+
+  def latestLoc: Option[Location] =
+    latest map (_._1)
+}
 
 case class Location(input: String, offset: Int = 0) {
   lazy val line = input.slice(0, offset + 1).count(_ == '\n') + 1
