@@ -117,4 +117,26 @@ object Reference extends Parsers[Parser] {
   def run[A](p: Parser[A])(input: String): Either[ParseError, A] = {
     p(ParseState(Location(input))).extract
   }
+
+  override def many[A](p: Parser[A]): Parser[List[A]] = {
+    import scala.collection.mutable.{ListBuffer => MList}
+
+    val l = new MList[A]
+
+    state =>
+      {
+        def loop(p: Parser[A], offset: Int): Result[List[A]] = {
+          p(state.advanceBy(offset)) match {
+            case Success(a, n) => {
+              l += a
+              loop(p, offset + n)
+            }
+            case f @ Failure(_, true) => f
+            case _                    => Success(l.toList, offset)
+          }
+        }
+
+        loop(p, 0)
+      }
+  }
 }
