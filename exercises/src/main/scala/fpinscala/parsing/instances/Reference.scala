@@ -106,6 +106,15 @@ object Reference extends Parsers[Parser] {
     }
   }
 
-  def flatMap[A, B](p: Parser[A])(f: A => Parser[B]): Parser[B]  = ???
-  def run[A](p: Parser[A])(input: String): Either[ParseError, A] = ???
+  def flatMap[A, B](p: Parser[A])(f: A => Parser[B]): Parser[B] = { state =>
+    p(state) match {
+      case Success(a, l) =>
+        f(a)(state.advanceBy(l)).addCommit(l != 0).advanceSuccess(l)
+      case f @ Failure(_, _) => f
+    }
+  }
+
+  def run[A](p: Parser[A])(input: String): Either[ParseError, A] = {
+    p(ParseState(Location(input))).extract
+  }
 }
