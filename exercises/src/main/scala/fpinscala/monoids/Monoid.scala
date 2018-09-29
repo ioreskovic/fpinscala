@@ -55,7 +55,10 @@ object Monoid {
       def zero = None
     }
 
-  def endoMonoid[A]: Monoid[A => A] = ???
+  def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
+    def op(x: A => A, y: A => A) = x andThen y
+    def zero                     = identity
+  }
 
   // TODO: Placeholder for `Prop`. Remove once you have implemented the `Prop`
   // data type from Part 2.
