@@ -186,6 +186,26 @@ case class ParseError(stack: List[(Location, String)] = Nil) {
 
   def latestLoc: Option[Location] =
     latest map (_._1)
+
+  def formatLocation(l: Location): String = s"${l.line}:${l.col}"
+
+  def groupByLocation(
+      stack: List[(Location, String)]): List[(Location, String)] =
+    stack
+      .groupBy(_._1) // Map[Location, List((Location, String))]
+      .mapValues(_.map(_._2).mkString("; ")) // Map[Location, String]
+      .toList                                // List[(Location, String)]
+      .sortBy(_._1.offset) // List[(Location, String)]
+
+  override def toString = stack match {
+    case Nil => "No errors"
+    case x =>
+      groupByLocation(stack)
+        .map {
+          case (loc, msg) => formatLocation(loc) + " => " + msg
+        }
+        .mkString("\n")
+  }
 }
 
 case class Location(input: String, offset: Int = 0) {
