@@ -9,6 +9,10 @@ trait Monoid[A] {
   def zero: A
 }
 
+trait Ord[A] {
+  def inOrder(x: A, y: A): Boolean
+}
+
 object Monoid {
 
   val stringMonoid = new Monoid[String] {
@@ -108,8 +112,48 @@ object Monoid {
     }
   }
 
-  def ordered(ints: IndexedSeq[Int]): Boolean =
-    ???
+  private def minMonoid: Monoid[Int] = new Monoid[Int] {
+    def zero                    = Int.MaxValue
+    def op(x: Int, y: Int): Int = x min y
+  }
+
+  private def maxMonoid: Monoid[Int] = new Monoid[Int] {
+    def zero                    = Int.MinValue
+    def op(x: Int, y: Int): Int = x max y
+  }
+
+  private def asc: Ord[Int] = new Ord[Int] {
+    def inOrder(x: Int, y: Int): Boolean = x <= y
+  }
+
+  private def desc: Ord[Int] = new Ord[Int] {
+    def inOrder(x: Int, y: Int): Boolean = x >= y
+  }
+
+  type IntOrder = (Monoid[Int], Monoid[Int], Ord[Int])
+
+  val AscOrder: IntOrder  = (minMonoid, maxMonoid, asc)
+  val DescOrder: IntOrder = (maxMonoid, minMonoid, desc)
+
+  def ordered(ints: IndexedSeq[Int])(o: IntOrder = AscOrder): Boolean = {
+    type Ord    = Boolean
+    type OrdSeg = Option[(Int, Int, Boolean)]
+
+    val mon = new Monoid[OrdSeg] {
+      def zero = None
+      def op(x: OrdSeg, y: OrdSeg): OrdSeg = (x, y) match {
+        case (Some((xStart, xEnd, xOrd)), Some((yStart, yEnd, yOrd))) => {
+          Some(o._1.op(xStart, yStart),
+               o._2.op(xEnd, yEnd),
+               xOrd && yOrd && o._3.inOrder(xEnd, yStart))
+        }
+        case (None, yy) => yy
+        case (xx, None) => xx
+      }
+    }
+
+    foldMapV(ints, mon)(i => Some((i, i, true))).map(_._3).getOrElse(true)
+  }
 
   sealed trait WC
   case class Stub(chars: String)                            extends WC
