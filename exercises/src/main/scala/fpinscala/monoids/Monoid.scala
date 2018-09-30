@@ -1,7 +1,7 @@
 package fpinscala.monoids
 
-import fpinscala.parallelism.Nonblocking._
-import fpinscala.parallelism.Nonblocking.Par.toParOps // infix syntax for `Par.map`, `Par.flatMap`, etc
+import fpinscala.parallelism.Nonblocking2._
+import fpinscala.parallelism.Nonblocking2.Par.toParOps // infix syntax for `Par.map`, `Par.flatMap`, etc
 import language.higherKinds
 
 trait Monoid[A] {
@@ -65,9 +65,6 @@ object Monoid {
     val zero              = m.zero
   }
 
-  // TODO: Placeholder for `Gen`. Remove once you have implemented the `Gen`
-  // data type from Part 2.
-
   import fpinscala.testing._
   import Prop._
   def monoidLaws[A](m: Monoid[A], gen: Gen[A]): Prop = {
@@ -118,11 +115,15 @@ object Monoid {
   case class Stub(chars: String)                            extends WC
   case class Part(lStub: String, words: Int, rStub: String) extends WC
 
-  def par[A](m: Monoid[A]): Monoid[Par[A]] =
-    ???
+  def par[A](m: Monoid[A]): Monoid[Par[A]] = new Monoid[Par[A]] {
+    def zero                               = Par.unit(m.zero)
+    def op(a1: Par[A], a2: Par[A]): Par[A] = a1.map2(a2)(m.op)
+  }
 
   def parFoldMap[A, B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
-    ???
+    Par.parMap(v)(f).flatMap { bs =>
+      foldMapV(bs, par(m))(b => Par.async(b => ()))
+    }
 
   val wcMonoid: Monoid[WC] = ???
 
