@@ -181,7 +181,15 @@ object Monoid {
     }
   }
 
-  def count(s: String): Int = ???
+  def count(s: String): Int = {
+    def w: String => Int = s => if (s.trim.isEmpty) 0 else 1
+    def m: Char => WC    = c => if (c == ' ') Part("", 0, "") else Stub(c.toString)
+
+    foldMapV(s, wcMonoid)(m) match {
+      case Stub(s)       => w(s)
+      case Part(l, c, r) => w(l) + c + w(r)
+    }
+  }
 
   def productMonoid[A, B](A: Monoid[A], B: Monoid[B]): Monoid[(A, B)] =
     ???
