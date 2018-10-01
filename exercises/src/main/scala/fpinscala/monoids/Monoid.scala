@@ -197,14 +197,26 @@ object Monoid {
       def op(x: (A, B), y: (A, B)) = (A.op(x._1, y._1), B.op(x._2, y._2))
     }
 
-  def functionMonoid[A, B](B: Monoid[B]): Monoid[A => B] =
-    ???
+  def functionMonoid[A, B](B: Monoid[B]): Monoid[A => B] = new Monoid[A => B] {
+    def zero                     = a => B.zero
+    def op(f: A => B, g: A => B) = a => B.op(f(a), g(a))
+  }
 
   def mapMergeMonoid[K, V](V: Monoid[V]): Monoid[Map[K, V]] =
-    ???
+    new Monoid[Map[K, V]] {
+      def zero = Map[K, V]()
+      def op(m1: Map[K, V], m2: Map[K, V]) =
+        (m1.keySet ++ m2.keySet).foldLeft(zero) { (m, k) =>
+          m.updated(k,
+                    V.op(
+                      m1.getOrElse(k, V.zero),
+                      m2.getOrElse(k, V.zero)
+                    ))
+        }
+    }
 
   def bag[A](as: IndexedSeq[A]): Map[A, Int] =
-    ???
+    foldMapV(as, mapMergeMonoid[A, Int](intAddition))(a => Map(a -> 1))
 }
 
 trait Foldable[F[_]] {
