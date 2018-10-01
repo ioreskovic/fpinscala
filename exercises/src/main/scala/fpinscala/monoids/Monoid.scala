@@ -87,10 +87,13 @@ object Monoid {
     associativity && identity
   }
 
-  def trimMonoid(s: String): Monoid[String] = ???
+  def trimMonoid(s: String): Monoid[String] = new Monoid[String] {
+    def zero                       = ""
+    def op(s1: String, s2: String) = (s1 + s2).trim
+  }
 
   def concatenate[A](as: List[A], m: Monoid[A]): A =
-    ???
+    foldMap(as, m)(identity)
 
   def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B =
     as.foldLeft(m.zero)((b, a) => m.op(b, f(a)))
