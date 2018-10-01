@@ -169,7 +169,17 @@ object Monoid {
       foldMapV(bs, par(m))(b => Par.async(b => ()))
     }
 
-  val wcMonoid: Monoid[WC] = ???
+  val wcMonoid: Monoid[WC] = new Monoid[WC] {
+    def zero: WC = Stub("")
+    def op(x: WC, y: WC): WC = (x, y) match {
+      case (Stub(sx), Stub(sy))         => Stub(sx + sy)
+      case (Stub(sx), Part(ly, cy, ry)) => Part(sx + ly, cy, ry)
+      case (Part(lx, cx, rx), Stub(sy)) => Part(lx, cx, rx + sy)
+      case (Part(lx, cx, rx), Part(ly, cy, ry)) if (rx + ly).isEmpty =>
+        Part(lx, cy + cy, ry)
+      case (Part(lx, cx, rx), Part(ly, cy, ry)) => Part(lx, cy + cy + 1, ry)
+    }
+  }
 
   def count(s: String): Int = ???
 
