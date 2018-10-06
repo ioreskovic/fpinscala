@@ -32,12 +32,15 @@ trait Monad[M[_]] extends Functor[M] {
 
   def map[A, B](ma: M[A])(f: A => B): M[B] =
     flatMap(ma)(a => unit(f(a)))
+
   def map2[A, B, C](ma: M[A], mb: M[B])(f: (A, B) => C): M[C] =
     flatMap(ma)(a => map(mb)(b => f(a, b)))
 
-  def sequence[A](lma: List[M[A]]): M[List[A]] = ???
+  def sequence[A](lma: List[M[A]]): M[List[A]] =
+    lma.foldRight(unit(List[A]()))((ma, macc) => map2(ma, macc)(_ :: _))
 
-  def traverse[A, B](la: List[A])(f: A => M[B]): M[List[B]] = ???
+  def traverse[A, B](la: List[A])(f: A => M[B]): M[List[B]] =
+    la.foldRight(unit(List[B]()))((a, mbacc) => map2(f(a), mbacc)(_ :: _))
 
   def replicateM[A](n: Int, ma: M[A]): M[List[A]] = ???
 
