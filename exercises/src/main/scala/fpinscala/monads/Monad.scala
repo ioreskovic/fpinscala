@@ -85,8 +85,6 @@ trait Monad[M[_]] extends Functor[M] {
     join(map(ma)(f))
 }
 
-case class Reader[R, A](run: R => A)
-
 object Monad {
   val genMonad = new Monad[Gen] {
     def unit[A](a: => A): Gen[A] = Gen.unit(a)
@@ -156,10 +154,15 @@ case class Id[A](value: A) {
   def flatMap[B](f: A => Id[B]): Id[B] = f(value)
 }
 
+case class Reader[R, A](run: R => A)
+
 object Reader {
   def readerMonad[R] = new Monad[({ type f[x] = Reader[R, x] })#f] {
-    def unit[A](a: => A): Reader[R, A] = ???
+    override def unit[A](a: => A): Reader[R, A] =
+      Reader(_ => a)
+
     override def flatMap[A, B](st: Reader[R, A])(
-        f: A => Reader[R, B]): Reader[R, B] = ???
+        f: A => Reader[R, B]): Reader[R, B] =
+      Reader(r => f(st.run(r)).run(r))
   }
 }
