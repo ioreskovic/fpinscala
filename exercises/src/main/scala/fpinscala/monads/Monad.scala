@@ -44,7 +44,6 @@ trait Monad[M[_]] extends Functor[M] {
     la.foldRight(unit(List[B]()))((a, mbacc) => map2(f(a), mbacc)(_ :: _))
 
   def replicateM[A](n: Int, ma: M[A]): M[List[A]] = {
-
     @scala.annotation.tailrec
     def loop(i: Int, acc: M[List[A]]): M[List[A]] = {
       if (i >= n) acc
@@ -55,6 +54,20 @@ trait Monad[M[_]] extends Functor[M] {
 
     // we could also do it with sequence, but that depends on foldRight implementation
     // sequence(List.fill(n)(ma))
+  }
+
+  def product[A, B](ma: M[A], mb: M[B]): M[(A, B)] =
+    map2(ma, mb)((_, _))
+
+  def filterM[A](ms: List[A])(f: A => M[Boolean]): M[List[A]] = {
+    @scala.annotation.tailrec
+    def loop(ax: List[A], macc: M[List[A]]): M[List[A]] = ax match {
+      case a :: as =>
+        loop(as, map2(f(a), macc) { case (p, acc) => if (p) a :: acc else acc })
+      case Nil => map(macc)(_.reverse)
+    }
+
+    loop(ms, unit(List[A]()))
   }
 
   def compose[A, B, C](f: A => M[B], g: B => M[C]): A => M[C] = ???
